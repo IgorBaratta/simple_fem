@@ -3,9 +3,7 @@ import numpy
 
 class Mesh(object):
     """
-    Build a structured unit square mesh.
-
-
+    Build a quadrilateral structured unit square mesh.
     """
 
     def __init__(self, nx: int, ny: int):
@@ -14,22 +12,22 @@ class Mesh(object):
         :param ny: The number of cells in the y direction.
         """
 
-        # Only two dimensional meshes are currently supported
-        self.dim = 2
+        # Only two dimensional quadrilateral meshes supported
+        self.reference_cell = ReferenceQuadrilateral()
         self.num_vertices = (nx + 1) * (ny + 1)
         self.num_cells = nx * ny
 
+        # Create meshgrid and use matrix indexing 'ij' to
+        # simplify topology computation
         x = numpy.linspace(0, 1, nx + 1)
         y = numpy.linspace(0, 1, ny + 1)
-
-        # use matrix indexing ij to simplify topology computation
         grid = numpy.array(numpy.meshgrid(x, y, indexing='ij')).transpose()
 
         self.vertices = grid.reshape((nx + 1) * (ny + 1), 2)
-        self.cells = numpy.zeros((nx * ny, 4), dtype=numpy.int32)
-        self._topology_computation(nx, ny)
+        self.cells = numpy.zeros((self.num_cells, 4), dtype=numpy.int32)
+        self._topology_computation(nx)
 
-    def _topology_computation(self, nx, ny):
+    def _topology_computation(self, nx):
         for cell in range(self.num_cells):
             line = cell // nx
             rem = cell % nx
@@ -38,22 +36,27 @@ class Mesh(object):
                                 (line + 1) * (nx + 1) + rem,
                                 (line + 1) * (nx + 1) + rem + 1]
 
-    def jacobian(self, i):
+    def jacobian(self, i: int):
         """
         Return the Jacobian matrix the ith cell.
         """
         raise NotImplementedError
 
 
-class ReferenceCell:
+class ReferenceQuadrilateral:
     """
     Reference quadrilateral with defined vertices
-    and topology:
+    and topology.
 
+    Font: Logg, Anders, Kent-Andre Mardal, and Garth Wells, eds. Automated solution of
+    differential equations by the finite element method: The FEniCS book. Vol. 84.
+    Springer Science & Business Media, 2012. -  Page
     """
+
     def __init__(self):
-        self.vertices = [[0.0, 0.0],
-                         [0.0, 1.0],
-                         [1.0, 0.0],
-                         [1.0, 1.1]]
-        self.topology = [0, 1, 2, 3]
+        self.dim = 2
+        self.num_vertices = 4
+        self.num_facets = 4
+        self.vertices = numpy.array([[0.0, 0.0], [0.0, 1.0],
+                                     [1.0, 0.0], [1.0, 1.1]])
+        self.topology = numpy.array([0, 1, 2, 3])
