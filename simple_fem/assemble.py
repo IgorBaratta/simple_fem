@@ -56,8 +56,45 @@ def linear_kernel(
     return result
 
 
-# def assemble_matrix():
-#     pass
+def assemble_matrix(V: FunctionSpace, matrix_type: str = "mass", degree: int = 2):
+    mesh = V.mesh
+    dofmap = V.dofmap
+    element = V.dofmap.element
+    Ae = numpy.zeros((element.num_dofs, element.num_dofs))
+    
+    data = numpy.zeros(mesh.num_cells * element.num_dofs * element.num_dofs)
+
+    for i in range(mesh.num_cells):
+        Ae.fill(0)
+        local_dofs = dofmap.cell_dofs(i)
+        local_coords = mesh.vertices[local_dofs]
+        cell_area = mesh.area(i)
+        Ae[:] = mass_kernel(local_coords, element, cell_area, degree)
+        data[i*Ae.size: i * Ae.size + Ae.size] = Ae.ravel()
+    
+    A = sparse.coo_matrix((data, sparsity_pattern(dofmap)), shape=(dofmap.size, dofmap.size)).tocsr()
+    return A
+
+
+def mass_kernel(coord: numpy.ndarray, element: Q1Element, area: float, degree: int) -> numpy.ndarray:
+    basis_func = element.basis
+
+    # get quadrature weights and points on interval [0, 1]
+    # and use tensor product to obtain 2d quadrature
+    x, w = ps_roots(degree)
+    quad_size = x.size * x.size
+    quad_points = (
+        numpy.array(numpy.meshgrid(x, x, indexing="ij"))
+        .transpose()
+        .reshape(quad_size, 2)
+    )
+    quad_weights = numpy.outer(w, w).reshape((quad_size, 1))
+
+    # Sample basis functions on quadrature points
+    sample_basis = numpy.apply_along_axis(basis_func, 1, quad_points)
+    local_matrix = (sample_basis @ sample_basis) * quad_weights * area
+
+    return local_matrix
 
 
 # def assemble_cells(data: numpy.ndarray, dofmap: DofMap):

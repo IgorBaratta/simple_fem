@@ -1,8 +1,9 @@
 import numpy
 from scipy import sparse
+from scipy.sparse.linalg import norm
 
 from simple_fem import Mesh, FunctionSpace, Q1Element
-from simple_fem.assemble import assemble_vector
+from simple_fem.assemble import assemble_vector, assemble_matrix
 
 
 def test_Q1Element():
@@ -28,3 +29,10 @@ def test_assemble_vector():
     Q = FunctionSpace(mesh, element)
     b = assemble_vector(Q, lambda x: x[0] + x[1])
     assert numpy.isclose(numpy.sum(b), 1.)
+
+def test_assemble_mass_matrix():
+    mesh = Mesh(2, 2)
+    element = Q1Element()
+    Q = FunctionSpace(mesh, element)
+    A = assemble_matrix(Q, "mass")
+    assert numpy.isclose(norm(A), 0.194444444444444)
