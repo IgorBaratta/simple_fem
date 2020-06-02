@@ -1,7 +1,7 @@
 from typing import Callable
 
 import numpy
-from scipy import integrate, sparse
+from scipy import sparse
 from scipy.special.orthogonal import ps_roots
 from simple_fem.fem import DofMap, Q1Element
 from simple_fem.function_space import FunctionSpace
@@ -30,10 +30,10 @@ def linear_kernel(
 
     basis_func = element.basis
 
-    # get quadrature weights and sample points on interval [0, 1]
-    # and use tensor product to get 2d sample points
+    # get quadrature weights and points on interval [0, 1]
+    # and use tensor product to obtain 2d quadrature
     x, w = ps_roots(degree)
-    quad_size = degree * degree
+    quad_size = x.size * x.size
     quad_points = (
         numpy.array(numpy.meshgrid(x, x, indexing="ij"))
         .transpose()
@@ -41,11 +41,18 @@ def linear_kernel(
     )
     quad_weights = numpy.outer(w, w).reshape((quad_size, 1))
 
-    # sample input function
-    sample_func = numpy.apply_along_axis(f, 1, quad_points).reshape((quad_size, 1))
+    # Sample basis functions on quadrature points
     sample_basis = numpy.apply_along_axis(basis_func, 1, quad_points)
-    result = numpy.sum(quad_weights * sample_func * sample_basis, axis=0) * area
 
+    # sample input function on quadrature points mapped back to
+    # the physical domain
+    mapped_points = numpy.dot(sample_basis, coord)
+    sample_func = numpy.apply_along_axis(
+        f, 1, mapped_points).reshape((quad_size, 1))
+
+    # Compute integral result
+    result = numpy.sum(quad_weights * sample_func *
+                       sample_basis, axis=0) * area
     return result
 
 
@@ -67,17 +74,18 @@ def linear_kernel(
 #         ] += local_mat.ravel()
 
 
-# def sparsity_pattern(dofmap: DofMap):
-#     """
-#     Returns local COO sparsity pattern.
-#     By default when converting to CSR or CSC format,
-#     duplicate (i,j) entries are summed together.
-#     """
-#     num_cells = dofmap.mesh.num_cells
-#     num_cell_dofs = dofmap.element.num_dofs
+def sparsity_pattern(dofmap: DofMap):
+    """
+    Returns local COO sparsity pattern.
+    By default when converting to CSR or CSC format,
+    duplicate (i,j) entries are summed together.
+    """
+    num_cells = dofmap.mesh.num_cells
+    dofs_per_cell = dofmap.element.num_dofs
 
-#     rows = numpy.repeat(dofmap.dof_array, num_cell_dofs)
-#     cols = numpy.tile(
-#         numpy.reshape(dofmap.dof_array, (num_cells, num_cell_dofs)), num_cell_dofs
-#     )
-#     return rows, cols.ravel()
+    rows = numpy.repeat(dofmap.dof_array, dofs_per_cell)
+    cols = numpy.tile(
+        numpy.reshape(dofmap.dof_array, (num_cells,
+                                         dofs_per_cell)), dofs_per_cell
+    )
+    return rows, cols.ravel()

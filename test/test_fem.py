@@ -14,10 +14,17 @@ def test_Q1Element():
         assert numpy.allclose(element.basis(dof_coord[i]), delta)
 
 
-def test_assemble_vector_single():
+def test_assemble_single_cell():
     mesh = Mesh(1, 1)
     element = Q1Element()
     V = FunctionSpace(mesh, element)
-    def f(x): return 1
-    b = assemble_vector(V, f)
+    b = assemble_vector(V, lambda x: 1)
     assert numpy.allclose(b, [0.25, 0.25, 0.25, 0.25])
+
+
+def test_assemble_vector():
+    mesh = Mesh(10, 10)
+    element = Q1Element()
+    Q = FunctionSpace(mesh, element)
+    b = assemble_vector(Q, lambda x: x[0] + x[1])
+    assert numpy.isclose(numpy.sum(b), 1.)
