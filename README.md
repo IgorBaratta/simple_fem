@@ -11,7 +11,7 @@ mesh = Mesh(10, 10)
 e = Q1Element()
 V = FunctionSpace(mesh, e)
 
-f = lambda x : 4*(-x[1]**2 + x[1])*numpy.sin(numpi.pi*x)
+f = lambda x : 4*(-x[1]**2 + x[1])*numpy.sin(numpi.pi*x[0])
 
 A = assemble_matrix(V, "poisson")
 b = assemble_vector(V, f)
