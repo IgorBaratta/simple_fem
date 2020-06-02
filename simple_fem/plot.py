@@ -9,24 +9,22 @@ def plot(mesh: Mesh, values=None, show_vertices=True):
     """
     Plot 2d function and mesh.
     """
-    parameters = {"edgecolor": "k",
-                  "cmap": "rainbow",
-                  "linewidths":(0.5,)}
+    parameters = {"edgecolor": "k", "cmap": "rainbow", "linewidths": (0.5,)}
 
     if values is not None:
         if values.size != mesh.num_cells:
-            raise ValueError('dimension mismatch')
+            raise ValueError("dimension mismatch")
     else:
         parameters["facecolor"] = "None"
 
     fig, ax = plt.subplots()
     if show_vertices:
-        ax.plot(mesh.vertices[:, 0], mesh.vertices[:, 1], marker=".", ls="", color='k')
+        ax.plot(mesh.vertices[:, 0], mesh.vertices[:, 1], marker=".", ls="", color="k")
 
     pc = add_poly(mesh, **parameters)
     ax.add_collection(pc)
     ax.autoscale()
-    ax.set_aspect('equal')
+    ax.set_aspect("equal")
 
     if values is not None:
         pc.set_array(values)
@@ -53,7 +51,7 @@ def add_poly(mesh, **kwargs):
     return pc
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     simple_mesh = Mesh(30, 30)
     cell_values = numpy.arange(simple_mesh.num_cells)
     plot(simple_mesh, cell_values, False)

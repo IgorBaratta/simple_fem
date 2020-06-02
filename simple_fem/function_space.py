@@ -9,15 +9,12 @@ class FunctionSpace:
         self.mesh = mesh
         self.element = element
         self.dofmap = DofMap(self.mesh, self.element)
-    
-    
-
 
 
 # Quadrilateral elements are particularly amenable to quadrature because integration rules
 # can be constructed by taking tensor products of the standard one-dimensional
 # Gauss rules.
-if __name__ == '__main__':
+if __name__ == "__main__":
     simple_mesh = Mesh(10, 10)
     element = Q1Element()
     Q = FunctionSpace(simple_mesh, element)

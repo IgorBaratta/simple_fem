@@ -8,11 +8,15 @@ class Q1Element:
         self.num_dofs = 4
         self.reference_cell = ReferenceQuadrilateral()
 
-        # 2D basis basis functions for quadrilatrals can b constructed as tensor 
-        # products of 1D functions
-        self.basis = lambda x, y: numpy.outer([1 - x, x], [1 - y, y]).flatten()
-        self.basis_derivative = lambda x, y: [numpy.outer([-1, 1], [1 - y, y]).flatten(),
-                                              numpy.outer([1 - x, x], [-1, 1]).flatten()]
+        # 2D basis basis functions for quadrilatrals can be constructed 
+        # as tensor products of 1D functions
+        self.basis = lambda x: numpy.outer(
+            [1 - x[0], x[0]], [1 - x[1], x[1]]).flatten()
+        self.basis_derivative = lambda x: [
+            numpy.outer([-1, 1], [1 - x[1], x[1]]).flatten(),
+            numpy.outer([1 - x[0], x[0]], [-1, 1]).flatten(),
+        ]
+
     @property
     def dof_coordinates(self):
         return self.reference_cell.coordinates
@@ -23,14 +27,23 @@ class DofMap:
         self.mesh = mesh
         self.element = element
         self.dof_array = mesh.cells.ravel()
-        self.size = numpy.max(self.dof_array) + 1
+        self._size = numpy.max(self.dof_array) + 1
 
-    def cell_dofs(self, cell_index: int):
+    def cell_dofs(self, i: int) -> numpy.ndarray:
+        """
+        Dofs (global numbering) for cell i
+        """
         ndofs = self.element.num_dofs
-        return self.dof_array[cell_index*ndofs:(cell_index+1)*ndofs + 1]
+        return self.dof_array[i * ndofs: (i + 1) * ndofs]
+
+    @property
+    def size(self) -> int:
+        """
+        Total number of degrees of freedom.
+        """
+        return self._size
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     simple_mesh = Mesh(10, 10)
     dofmap = DofMap(simple_mesh)
-

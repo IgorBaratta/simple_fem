@@ -25,7 +25,7 @@ class Mesh(object):
         # simplify topology computation
         x = numpy.linspace(0, 1, nx + 1)
         y = numpy.linspace(0, 1, ny + 1)
-        grid = numpy.array(numpy.meshgrid(x, y, indexing='ij')).transpose()
+        grid = numpy.array(numpy.meshgrid(x, y, indexing="ij")).transpose()
 
         # coordinate of all nodes in the mesh
         self.vertices = grid.reshape((nx + 1) * (ny + 1), 2)
@@ -41,22 +41,25 @@ class Mesh(object):
         for cell in range(self.num_cells):
             line = cell // nx
             rem = cell % nx
-            self.cells[cell] = [line * (nx + 1) + rem,
-                                line * (nx + 1) + rem + 1,
-                                (line + 1) * (nx + 1) + rem,
-                                (line + 1) * (nx + 1) + rem + 1]
+            self.cells[cell] = [
+                line * (nx + 1) + rem,
+                line * (nx + 1) + rem + 1,
+                (line + 1) * (nx + 1) + rem,
+                (line + 1) * (nx + 1) + rem + 1,
+            ]
 
-    def jacobian(self, i: int):
+    def area(self, i: int):
         """
-        Return the Jacobian matrix the ith cell.
-        The Jacobian reduces to a constant diagonal matrix
-        for our case.
+        Retun area of element i.
+        Note: since the mesh is structured all elements
+        have the same area.
         """
         local_vert = self.vertices[self.cells[i]]
         dx = local_vert[1, 0] - local_vert[0, 0]
         dy = local_vert[2, 1] - local_vert[1, 1]
         area = dx * dy
-        return area/4
+        return area
+
 
 class ReferenceQuadrilateral:
     """
@@ -71,6 +74,5 @@ class ReferenceQuadrilateral:
         self.dim = 2
         self.num_vertices = 4
         self.num_facets = 4
-        self.coordinates = numpy.array([[0.0, 0.0], [0.0, 1.0],
-                                        [1.0, 0.0], [1.0, 1.0]])
+        self.coordinates = numpy.array([[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]])
         self.topology = numpy.array([0, 1, 2, 3])
