@@ -8,16 +8,20 @@ class Q1Element:
         self.num_dofs = 4
         self.reference_cell = ReferenceQuadrilateral()
 
+        # 2D basis basis functions for quadrilatrals can b constructed as tensor 
+        # products of 1D functions
+        self.basis = lambda x, y: numpy.outer([1 - x, x], [1 - y, y]).flatten()
+        self.basis_derivative = lambda x, y: [numpy.outer([-1, 1], [1 - y, y]).flatten(),
+                                              numpy.outer([1 - x, x], [-1, 1]).flatten()]
     @property
     def dof_coordinates(self):
-        return self.reference_cell.vertices
+        return self.reference_cell.coordinates
 
 
 class DofMap:
     def __init__(self, mesh: Mesh, element=Q1Element()):
         self.mesh = mesh
         self.element = element
-        assert mesh.reference_cell == element.reference_cell
         self.dof_array = mesh.cells.ravel()
         self.size = numpy.max(self.dof_array) + 1
 
@@ -27,6 +31,6 @@ class DofMap:
 
 
 if __name__ == '__main__':
-    simple_mesh = Mesh(5, 5)
+    simple_mesh = Mesh(10, 10)
     dofmap = DofMap(simple_mesh)
 

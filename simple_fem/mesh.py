@@ -8,8 +8,12 @@ class Mesh(object):
 
     def __init__(self, nx: int, ny: int):
         """
-        :param nx: The number of cells in the x direction.
-        :param ny: The number of cells in the y direction.
+        Parameters
+        ----------
+        nx 
+            The number of cells in the x direction.
+        ny 
+            The number of cells in the y direction.
         """
 
         # Only two dimensional quadrilateral meshes supported
@@ -25,12 +29,14 @@ class Mesh(object):
 
         # coordinate of all nodes in the mesh
         self.vertices = grid.reshape((nx + 1) * (ny + 1), 2)
-        self.cells = numpy.zeros((self.num_cells, 4), dtype=numpy.int32)
+
+        # Compute cells - cell-vertice connections
+        self.cells = numpy.zeros((self.num_cells, 4), dtype=numpy.int)
         self._topology_computation(nx)
 
-    def _topology_computation(self, nx):
+    def _topology_computation(self, nx: int):
         """
-
+        Compute cell-vertex connections connections.
         """
         for cell in range(self.num_cells):
             line = cell // nx
@@ -43,9 +49,14 @@ class Mesh(object):
     def jacobian(self, i: int):
         """
         Return the Jacobian matrix the ith cell.
+        The Jacobian reduces to a constant diagonal matrix
+        for our case.
         """
-        raise NotImplementedError
-
+        local_vert = self.vertices[self.cells[i]]
+        dx = local_vert[1, 0] - local_vert[0, 0]
+        dy = local_vert[2, 1] - local_vert[1, 1]
+        area = dx * dy
+        return area/4
 
 class ReferenceQuadrilateral:
     """
@@ -60,6 +71,6 @@ class ReferenceQuadrilateral:
         self.dim = 2
         self.num_vertices = 4
         self.num_facets = 4
-        self.vertices = numpy.array([[0.0, 0.0], [0.0, 1.0],
-                                     [1.0, 0.0], [1.0, 1.1]])
+        self.coordinates = numpy.array([[0.0, 0.0], [0.0, 1.0],
+                                        [1.0, 0.0], [1.0, 1.0]])
         self.topology = numpy.array([0, 1, 2, 3])

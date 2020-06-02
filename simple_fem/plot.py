@@ -10,7 +10,8 @@ def plot(mesh: Mesh, values=None, show_vertices=True):
     Plot 2d function and mesh.
     """
     parameters = {"edgecolor": "k",
-                  "cmap": "rainbow"}
+                  "cmap": "rainbow",
+                  "linewidths":(0.5,)}
 
     if values is not None:
         if values.size != mesh.num_cells:
@@ -20,7 +21,7 @@ def plot(mesh: Mesh, values=None, show_vertices=True):
 
     fig, ax = plt.subplots()
     if show_vertices:
-        ax.plot(mesh.vertices[:, 0], mesh.vertices[:, 1], marker="o", ls="", color='k')
+        ax.plot(mesh.vertices[:, 0], mesh.vertices[:, 1], marker=".", ls="", color='k')
 
     pc = add_poly(mesh, **parameters)
     ax.add_collection(pc)
@@ -53,6 +54,6 @@ def add_poly(mesh, **kwargs):
 
 
 if __name__ == '__main__':
-    simple_mesh = Mesh(10, 10)
+    simple_mesh = Mesh(30, 30)
     cell_values = numpy.arange(simple_mesh.num_cells)
-    plot(simple_mesh, cell_values)
+    plot(simple_mesh, cell_values, False)
