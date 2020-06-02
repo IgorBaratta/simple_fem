@@ -6,6 +6,9 @@ from simple_fem import Mesh
 
 
 def plot(mesh: Mesh, values=None, show_vertices=True):
+    """
+    Plot 2d function and mesh.
+    """
     parameters = {"edgecolor": "k",
                   "cmap": "rainbow"}
 
@@ -30,13 +33,12 @@ def plot(mesh: Mesh, values=None, show_vertices=True):
 
     plt.show()
 
-    # fi
-    # return fig
-
 
 def reorder_counterclockwise(cells: numpy.ndarray):
     """
-    Reorder mesh to counter clock wise local
+    Reorder cell topology so that V0->V1->V2->V3->V0
+    forms a closed path and the resulting quadrilateral
+    is convex.
     """
     perm = numpy.array([0, 1, 3, 2], dtype=numpy.int32)
     new_cell_order = cells[:, perm]
@@ -52,5 +54,5 @@ def add_poly(mesh, **kwargs):
 
 if __name__ == '__main__':
     simple_mesh = Mesh(10, 10)
-    values = numpy.arange(simple_mesh.num_cells)
-    plot(simple_mesh, values)
+    cell_values = numpy.arange(simple_mesh.num_cells)
+    plot(simple_mesh, cell_values)

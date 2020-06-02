@@ -23,11 +23,15 @@ class Mesh(object):
         y = numpy.linspace(0, 1, ny + 1)
         grid = numpy.array(numpy.meshgrid(x, y, indexing='ij')).transpose()
 
+        # coordinate of all nodes in the mesh
         self.vertices = grid.reshape((nx + 1) * (ny + 1), 2)
         self.cells = numpy.zeros((self.num_cells, 4), dtype=numpy.int32)
         self._topology_computation(nx)
 
     def _topology_computation(self, nx):
+        """
+
+        """
         for cell in range(self.num_cells):
             line = cell // nx
             rem = cell % nx
@@ -45,8 +49,7 @@ class Mesh(object):
 
 class ReferenceQuadrilateral:
     """
-    Reference quadrilateral with defined vertices
-    and topology.
+    Reference quadrilateral with defined vertices and topology.
 
     Font: Logg, Anders, Kent-Andre Mardal, and Garth Wells, eds. Automated solution of
     differential equations by the finite element method: The FEniCS book. Vol. 84.
