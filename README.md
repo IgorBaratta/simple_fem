@@ -1,5 +1,5 @@
 # simple_fem
-![CI](https://github.com/IgorBaratta/simple_fem/workflows/Python%20package/badge.svg)
+![CI](https://github.com/IgorBaratta/simple_fem/workflows/CI/badge.svg)
 
 ## Usage:
 
