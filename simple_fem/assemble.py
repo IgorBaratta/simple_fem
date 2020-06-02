@@ -56,23 +56,30 @@ def linear_kernel(
     return result
 
 
-def assemble_matrix(V: FunctionSpace, matrix_type: str = "mass", degree: int = 2):
+def assemble_matrix(V: FunctionSpace, matrix_type: str = "mass", degree: int = 4):
     mesh = V.mesh
     dofmap = V.dofmap
     element = V.dofmap.element
     Ae = numpy.zeros((element.num_dofs, element.num_dofs))
-    
     data = numpy.zeros(mesh.num_cells * element.num_dofs * element.num_dofs)
+
+    if matrix_type.lower() == "mass":
+        kernel = mass_kernel
+    elif matrix_type.lower() == "stiffness":
+        kernel = stiffness_kernel
+    else:
+        raise NotImplementedError
 
     for i in range(mesh.num_cells):
         Ae.fill(0)
         local_dofs = dofmap.cell_dofs(i)
         local_coords = mesh.vertices[local_dofs]
         cell_area = mesh.area(i)
-        Ae[:] = mass_kernel(local_coords, element, cell_area, degree)
+        Ae[:] = kernel(local_coords, element, cell_area, degree)
         data[i*Ae.size: i * Ae.size + Ae.size] = Ae.ravel()
-    
-    A = sparse.coo_matrix((data, sparsity_pattern(dofmap)), shape=(dofmap.size, dofmap.size)).tocsr()
+
+    A = sparse.coo_matrix((data, sparsity_pattern(dofmap)),
+                          shape=(dofmap.size, dofmap.size)).tocsr()
     return A
 
 
@@ -92,23 +99,34 @@ def mass_kernel(coord: numpy.ndarray, element: Q1Element, area: float, degree: i
 
     # Sample basis functions on quadrature points
     sample_basis = numpy.apply_along_axis(basis_func, 1, quad_points)
-    local_matrix = (sample_basis @ sample_basis) * quad_weights * area
+    local_matrix = (sample_basis*quad_weights).T @ sample_basis * area
 
     return local_matrix
 
 
-# def assemble_cells(data: numpy.ndarray, dofmap: DofMap):
-#     mesh = dofmap.mesh
-#     local_mat = numpy.zeros(
-#         (dofmap.element.num_dofs, dofmap.element.num_dofs), dtype=data.dtype
-#     )
+def stiffness_kernel(coord: numpy.ndarray, element: Q1Element, area: float, degree: int) -> numpy.ndarray:
 
-#     for idx in range(mesh.num_cells):
-#         local_mat.fill(2.0)
+    # get quadrature weights and points on interval [0, 1]
+    # and use tensor product to obtain 2d quadrature
+    x, w = ps_roots(degree)
+    quad_size = x.size * x.size
+    quad_points = (
+        numpy.array(numpy.meshgrid(x, x, indexing="ij"))
+        .transpose()
+        .reshape(quad_size, 2)
+    )
+    quad_weights = numpy.outer(w, w).reshape((quad_size, 1))
+    basis_derivative = element.basis_derivative
 
-#         data[
-#             idx * local_mat.size : idx * local_mat.size + local_mat.size
-#         ] += local_mat.ravel()
+    sample_dx = numpy.apply_along_axis(basis_derivative[0], 1, quad_points)
+    sample_dy = numpy.apply_along_axis(basis_derivative[1], 1, quad_points)
+
+    # Add contributions to local matrix componentwise, first dx then dy
+    local_matrix = numpy.zeros((element.num_dofs, element.num_dofs))
+    local_matrix += (sample_dx*quad_weights).T @ sample_dx
+    local_matrix += (sample_dy*quad_weights).T @ sample_dy
+
+    return local_matrix * area
 
 
 def sparsity_pattern(dofmap: DofMap):

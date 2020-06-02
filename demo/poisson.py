@@ -7,8 +7,7 @@ from simple_fem import Mesh, FunctionSpace, Q1Element, plot
 from simple_fem.assemble import assemble_matrix
 
 
-mesh = Mesh(2, 2)
+mesh = Mesh(10, 10)
 element = Q1Element()
 Q = FunctionSpace(mesh, element)
-A = assemble_matrix(Q, "mass")
-print(norm(A))
+A = assemble_matrix(Q, matrix_type="stiffness")

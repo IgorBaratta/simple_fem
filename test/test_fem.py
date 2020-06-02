@@ -34,5 +34,12 @@ def test_assemble_mass_matrix():
     mesh = Mesh(2, 2)
     element = Q1Element()
     Q = FunctionSpace(mesh, element)
-    A = assemble_matrix(Q, "mass")
-    assert numpy.isclose(norm(A), 0.194444444444444)
+    A = assemble_matrix(Q, "mass", degree=5)
+    assert numpy.isclose(norm(A), 0.194445, 1e-05)
+
+def test_assemble_stiffness_matrix():
+    mesh = Mesh(1, 1)
+    element = Q1Element()
+    Q = FunctionSpace(mesh, element)
+    A = assemble_matrix(Q, "stiffness", degree=5)
+    assert numpy.isclose(norm(A), 1.563472, 1e-05)
