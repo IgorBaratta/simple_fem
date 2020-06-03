@@ -11,7 +11,7 @@ class Q1Element:
         # 2D basis basis functions for quadrilatrals can be constructed
         # as tensor products of 1D functions
         self.basis = lambda x: numpy.outer(
-            [1 - x[0], x[0]], [1 - x[1], x[1]]).flatten()
+            [1 - x[0], x[0]], [1 - x[1], x[1]]).T.flatten()
 
         self.basis_derivative = [lambda x: numpy.outer([-1, 1], [1 - x[1], x[1]]).T.flatten(),
                                  lambda x: numpy.outer([1 - x[0], x[0]], [-1, 1]).T.flatten()]
@@ -30,7 +30,7 @@ class DofMap:
 
     def cell_dofs(self, i: int) -> numpy.ndarray:
         """
-        Dofs (global numbering) for cell i
+        Return ofs (global numbering) for cell i
         """
         ndofs = self.element.num_dofs
         return self.dof_array[i * ndofs: (i + 1) * ndofs]
@@ -38,10 +38,9 @@ class DofMap:
     @property
     def size(self) -> int:
         """
-        Total number of degrees of freedom.
+        Return the number of degrees of freedom.
         """
         return self._size
-
 
 if __name__ == "__main__":
     simple_mesh = Mesh(10, 10)

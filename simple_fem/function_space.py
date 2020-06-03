@@ -6,15 +6,46 @@ from simple_fem.fem import Q1Element, DofMap
 
 class FunctionSpace:
     def __init__(self, mesh: Mesh, element: Q1Element):
-        self.mesh = mesh
-        self.element = element
-        self.dofmap = DofMap(self.mesh, self.element)
+        """
+        """
+        self._mesh = mesh
+        self._element = element
+        self._dofmap = DofMap(self._mesh, self._element)
 
+    @property
+    def dofmap(self):
+        """
+        Return the dofmap associated with the function space.
+        """
+        return self._dofmap
 
-# Quadrilateral elements are particularly amenable to quadrature because integration rules
-# can be constructed by taking tensor products of the standard one-dimensional
-# Gauss rules.
-if __name__ == "__main__":
-    simple_mesh = Mesh(10, 10)
-    element = Q1Element()
-    Q = FunctionSpace(simple_mesh, element)
+    @property
+    def mesh(self):
+        """
+        Return the mesh on wich the function space is defined.
+        """
+        return self._mesh
+
+    @property
+    def element(self):
+        """
+        Return the finite element tha defines the function space.
+        """
+        return self._element
+
+    def locate_boundary_dofs(self):
+        """
+        Return indice boundary dofs.
+        x0==0 or x0==1 or x1==0 or x1==1
+        """
+        x_boundary = numpy.logical_or(
+            numpy.isclose(self._mesh.vertices[:, 0], 0.),
+            numpy.isclose(self._mesh.vertices[:, 0], 1.)
+        )
+
+        y_boundary = numpy.logical_or(
+            numpy.isclose(self._mesh.vertices[:, 1], 0.),
+            numpy.isclose(self._mesh.vertices[:, 1], 1.)
+        )
+
+        return numpy.where(numpy.logical_or(x_boundary, y_boundary))[0]
