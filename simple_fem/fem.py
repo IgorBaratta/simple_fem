@@ -8,7 +8,7 @@ class Q1Element:
         self.num_dofs = 4
         self.reference_cell = ReferenceQuadrilateral()
 
-        # 2D basis basis functions for quadrilatrals can be constructed
+        # 2D basis basis functions for quadrilaterals can be constructed
         # as tensor products of 1D functions
         self.basis = lambda x: numpy.outer(
             [1 - x[0], x[0]], [1 - x[1], x[1]]).T.flatten()
@@ -41,6 +41,7 @@ class DofMap:
         Return the number of degrees of freedom.
         """
         return self._size
+
 
 if __name__ == "__main__":
     simple_mesh = Mesh(10, 10)

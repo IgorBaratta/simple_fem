@@ -6,8 +6,6 @@ from simple_fem.fem import Q1Element, DofMap
 
 class FunctionSpace:
     def __init__(self, mesh: Mesh, element: Q1Element):
-        """
-        """
         self._mesh = mesh
         self._element = element
         self._dofmap = DofMap(self._mesh, self._element)
@@ -22,7 +20,7 @@ class FunctionSpace:
     @property
     def mesh(self):
         """
-        Return the mesh on wich the function space is defined.
+        Return the mesh on which the function space is defined.
         """
         return self._mesh
 
@@ -35,7 +33,7 @@ class FunctionSpace:
 
     def locate_boundary_dofs(self):
         """
-        Return indice boundary dofs.
+        Return indices of the boundary dofs.
         x0==0 or x0==1 or x1==0 or x1==1
         """
         x_boundary = numpy.logical_or(

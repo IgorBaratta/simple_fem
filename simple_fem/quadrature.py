@@ -19,7 +19,7 @@ class Quadrature:
 
         # The integration rules for the unit square can be constructed
         # by taking tensor products of the standard one-dimensional
-        # Gauss-Legendre quadrature
+        # Gauss-Legendre quadrature o the domain [0, 1]
         x, w = ps_roots(self._order)
         self._size = x.size * x.size
         self._points = (

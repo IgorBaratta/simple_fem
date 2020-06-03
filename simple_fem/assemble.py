@@ -2,10 +2,9 @@ from typing import Callable
 
 import numpy
 from scipy import sparse
-from scipy.special.orthogonal import ps_roots
+
 from simple_fem.fem import DofMap, Q1Element
 from simple_fem.function_space import FunctionSpace
-from simple_fem.mesh import Mesh
 from simple_fem.quadrature import Quadrature
 
 
@@ -84,17 +83,17 @@ def mass_kernel(coord: numpy.ndarray, element: Q1Element, jac: numpy.ndarray, qu
 
 
 def stiffness_kernel(coord: numpy.ndarray, element: Q1Element, jac: numpy.ndarray, quad: Quadrature) -> numpy.ndarray:
-    # Samble basis derivatives on quadrature points
+    # Sample basis derivatives on quadrature points
     sample_dx = numpy.apply_along_axis(
         element.basis_derivative[0], 1, quad.points)
     sample_dy = numpy.apply_along_axis(
         element.basis_derivative[1], 1, quad.points)
 
-    # Add contributions to local matrix componentwise, first dx then dy
-    Ae = numpy.zeros((element.num_dofs, element.num_dofs))
-
     inv_jac = numpy.linalg.inv(jac)
     detJ = numpy.linalg.det(jac)
+
+    # Add contributions to local matrix componentwise, first dx then dy
+    Ae = numpy.zeros((element.num_dofs, element.num_dofs))
 
     # Ae_{i,j} = \sum_i \sum_{p} J^{-1} d_{x_i} phi(i,p) J^{-1} d_{x_i} phi(p,j) weights(p) * detJ
     Ax = ((sample_dx*quad.weights).T @ sample_dx) * inv_jac[0, 0]**2

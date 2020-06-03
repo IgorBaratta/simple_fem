@@ -30,7 +30,7 @@ class Mesh(object):
         # Compute coordinate of all nodes in the mesh
         self.vertices = grid.reshape((nx + 1) * (ny + 1), 2)
 
-        # Compute cells - cell-vertice connections
+        # Compute cells - cell-vertex connections
         self.cells = numpy.zeros((self.num_cells, 4), dtype=numpy.int)
         self._topology_computation(nx)
 
@@ -67,7 +67,7 @@ class Mesh(object):
 
     def area(self, i: int):
         """
-        Retun the area of cell i.
+        Return the area of cell i.
         Note: since the mesh is structured all elements have the same area.
         """
         return numpy.linalg.det(self.jacobian(i))
@@ -76,8 +76,6 @@ class Mesh(object):
 class ReferenceQuadrilateral:
     """
     Reference quadrilateral with defined vertices and topology.
-
-    Font: The FEniCS book. Vol. 84. - Page:
     """
 
     def __init__(self):
