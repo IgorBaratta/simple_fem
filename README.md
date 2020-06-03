@@ -2,6 +2,19 @@
 
 ![CI](https://github.com/IgorBaratta/simple_fem/workflows/CI/badge.svg)
 
+## Installation
+
+```bash
+pip install git+https://github.com/IgorBaratta/simple_fem.git
+```
+
+### Requirements
+
+The only requirements for running _simple_fem_ are:
+
+- Scipy
+- Numpy
+
 ## Usage
 
 ```python3
