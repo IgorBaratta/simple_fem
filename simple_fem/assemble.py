@@ -10,16 +10,17 @@ from simple_fem.quadrature import Quadrature
 
 
 def assemble_vector(V: FunctionSpace, f: Callable, degree: int = 2) -> numpy.ndarray:
-    b = numpy.zeros(V.dofmap.size)
+
     mesh = V.mesh
     dofmap = V.dofmap
 
     quad = Quadrature(degree)
+    b = numpy.zeros(V.dofmap.size)
+    cell_area = mesh.area(0)
 
     for i in range(mesh.num_cells):
         local_dofs = dofmap.cell_dofs(i)
         local_coords = mesh.vertices[local_dofs]
-        cell_area = mesh.area(i)
 
         b[local_dofs] += linear_kernel(
             local_coords, f, dofmap.element, cell_area, quad
@@ -37,12 +38,9 @@ def linear_kernel(
 
     # sample input function on quadrature points mapped back to the physical domain
     mapped_points = numpy.dot(sample_basis, coord)
-    sample_func = numpy.apply_along_axis(
-        f, 1, mapped_points).reshape((quad.size, 1))
+    sample_func = numpy.apply_along_axis(f, 1, mapped_points)
+    result = (sample_basis * quad.weights).T @ sample_func * area
 
-    # Compute integral result
-    result = numpy.sum(quad.weights * sample_func *
-                       sample_basis, axis=0) * area
     return result
 
 
@@ -71,7 +69,7 @@ def assemble_matrix(V: FunctionSpace, matrix_type: str = "mass", degree: int = 4
         data[i*Ae.size: i * Ae.size + Ae.size] = Ae.ravel()
 
     A = sparse.coo_matrix((data, sparsity_pattern(dofmap)),
-                          shape=(dofmap.size, dofmap.size))
+                          shape=(dofmap.size, dofmap.size)).tocsr()
     return A
 
 
@@ -95,8 +93,8 @@ def stiffness_kernel(coord: numpy.ndarray, element: Q1Element, area: float, quad
     # Add contributions to local matrix componentwise, first dx then dy
     Ae = numpy.zeros((element.num_dofs, element.num_dofs))
     # Ae_{i,j} = \sum_i \sum_{p} d_{x_i} phi(i,p) d_{x_i} phi(p,j) weights(p)
-    Ae += (sample_dx*quad.weights).T @ sample_dx * area
-    Ae += (sample_dy*quad.weights).T @ sample_dy * area
+    Ae += (sample_dx*quad.weights).T @ sample_dx
+    Ae += (sample_dy*quad.weights).T @ sample_dy
     return Ae
 
 
@@ -117,10 +115,12 @@ def sparsity_pattern(dofmap: DofMap):
 
 
 def apply_bc(A: sparse.spmatrix, b: numpy.ndarray, dofs: numpy.ndarray, value: float = 0):
-    if sparse.isspmatrix_coo(A):
-        for row in dofs:
-            A.data[A.row == row] = 0.
-            A.data[(A.row == row) * (A.row == row)] = 1
+    if sparse.isspmatrix_csr(A):
+        for dof in dofs:
+            A.data[A.indptr[dof]: A.indptr[dof + 1]] = 0.0
+            A[dof, dof] = 1.0
+        A.eliminate_zeros()
     else:
-        raise TypeError("This functions only accepts COO matrices")
+        raise TypeError("Matrix must be of csr format.")
+    
     b[dofs] = value

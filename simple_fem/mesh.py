@@ -34,6 +34,10 @@ class Mesh(object):
         self.cells = numpy.zeros((self.num_cells, 4), dtype=numpy.int)
         self._topology_computation(nx)
 
+        # Store nx and ny to simplify plotting 
+        self.nx = nx
+        self.ny = ny
+
     def _topology_computation(self, nx: int):
         """
         Compute cell-vertex connections connections.

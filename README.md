@@ -1,26 +1,31 @@
 # simple_fem
+
 ![CI](https://github.com/IgorBaratta/simple_fem/workflows/CI/badge.svg)
 
-## Usage:
+## Usage
 
 ```python3
+import numpy
 from scipy.sparse.linalg import spsolve
-from simple_fem import Mesh, FunctionsSpace, Q1Element, plot
 
-mesh = Mesh(10, 10)
-e = Q1Element()
-V = FunctionSpace(mesh, e)
+from simple_fem import Mesh, FunctionSpace, Q1Element, plot
+from simple_fem.assemble import assemble_matrix, assemble_vector, apply_bc
 
-f = lambda x : 4*(-x[1]**2 + x[1])*numpy.sin(numpi.pi*x[0])
 
-A = assemble_matrix(V, "poisson")
-b = assemble_vector(V, f)
+mesh = Mesh(20, 20)
+element = Q1Element()
+Q = FunctionSpace(mesh, element)
 
-dofs = locate_boundary_dofs(V)
+f = lambda x : 4*(-x[1]**2 + x[1])*numpy.sin(numpy.pi*x[0])
+
+A = assemble_matrix(Q, matrix_type="stiffness")
+b = assemble_vector(Q, f)
+
+dofs = Q.locate_boundary_dofs()
 apply_bc(A, b, dofs, value=0)
 
-x  = spsolve(A, b)
+x = spsolve(A, b)
 
-plot(V, x)
+plot(mesh, x)
 
 ```

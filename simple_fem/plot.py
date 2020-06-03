@@ -12,23 +12,28 @@ def plot(mesh: Mesh, values=None, show_vertices=True):
     parameters = {"edgecolor": "k", "cmap": "rainbow", "linewidths": (0.5,)}
 
     if values is not None:
-        if values.size != mesh.num_cells:
+        if values.size != mesh.num_vertices:
             raise ValueError("dimension mismatch")
     else:
         parameters["facecolor"] = "None"
 
-    fig, ax = plt.subplots()
+    _, ax = plt.subplots()
     if show_vertices:
-        ax.plot(mesh.vertices[:, 0], mesh.vertices[:, 1], marker=".", ls="", color="k")
+        ax.plot(mesh.vertices[:, 0], mesh.vertices[:, 1],
+                marker=".", ls="", color="k")
+
+    if values is not None:
+        x1 = numpy.linspace(0, 1, mesh.nx + 1)
+        y1 = numpy.linspace(0, 1, mesh.ny + 1)
+        grid = numpy.meshgrid(x1, y1)
+        plt.contourf(grid[1], grid[0], values.reshape((mesh.nx + 1, mesh.ny + 1)))
+        parameters["facecolor"] = "None"
+        plt.colorbar()
 
     pc = add_poly(mesh, **parameters)
     ax.add_collection(pc)
     ax.autoscale()
     ax.set_aspect("equal")
-
-    if values is not None:
-        pc.set_array(values)
-        fig.colorbar(pc, ax=ax)
 
     plt.show()
 
