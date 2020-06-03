@@ -16,8 +16,8 @@ pip install git+https://github.com/IgorBaratta/simple_fem.git
 
 The only requirements for running _simple_fem_ are:
 
-- Scipy
-- Numpy
+- Scipy - tested with version 1.4.1
+- Numpy - tested with version 1.18.4
 
 ## Usage
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/IgorBaratta/simple_fem/blob/master/demo/Poisson.ipynb)
