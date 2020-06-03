@@ -14,17 +14,17 @@ def test_Q1Element():
         delta[i] = 1.
         assert numpy.allclose(element.basis(dof_coord[i]), delta)
 
+
 def test_Q1Element_derivative():
     element = Q1Element()
     dx = element.basis_derivative[0]
     dy = element.basis_derivative[1]
 
-    assert (dx([0,0]) == [-1, 1, 0, 0]).all()
-    assert (dy([0,0]) == [-1, 0, 1, 0]).all()
+    assert (dx([0, 0]) == [-1, 1, 0, 0]).all()
+    assert (dy([0, 0]) == [-1, 0, 1, 0]).all()
 
-    assert (dx([1,1]) == [0, 0, -1, 1]).all()
-    assert (dy([1,1]) == [0, -1, 0, 1]).all()
-
+    assert (dx([1, 1]) == [0, 0, -1, 1]).all()
+    assert (dy([1, 1]) == [0, -1, 0, 1]).all()
 
 
 def test_assemble_single_cell():
