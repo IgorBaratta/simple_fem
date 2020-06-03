@@ -16,6 +16,7 @@ The only requirements for running _simple_fem_ are:
 - Numpy
 
 ## Usage
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/IgorBaratta/simple_fem/blob/master/demo/Poisson.ipynb)
 
 ```python3
 import numpy
