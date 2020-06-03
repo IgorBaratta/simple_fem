@@ -29,3 +29,5 @@ x = spsolve(A, b)
 plot(mesh, x)
 
 ```
+
+![Image of Yaktocat](https://github.com/IgorBaratta/simple_fem/blob/master/demo/poisson.png)
