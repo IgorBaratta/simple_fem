@@ -2,6 +2,10 @@
 
 ![CI](https://github.com/IgorBaratta/simple_fem/workflows/CI/badge.svg)
 
+Simple finite element implementation using Q1 (4 node quadrilateral) elements.
+
+The interface is inspired by the interface of libraries from the FEniCS Project.
+
 ## Installation
 
 ```bash
@@ -16,6 +20,7 @@ The only requirements for running _simple_fem_ are:
 - Numpy
 
 ## Usage
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/IgorBaratta/simple_fem/blob/master/demo/Poisson.ipynb)
 
 ```python3
 import numpy
@@ -43,4 +48,4 @@ plot(mesh, x)
 
 ```
 
-![Image of Yaktocat](https://github.com/IgorBaratta/simple_fem/blob/master/demo/poisson.png)
+![Solution](https://github.com/IgorBaratta/simple_fem/blob/master/demo/poisson.png)
