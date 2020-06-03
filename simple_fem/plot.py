@@ -23,10 +23,9 @@ def plot(mesh: Mesh, values=None, show_vertices=True):
                 marker=".", ls="", color="k")
 
     if values is not None:
-        x1 = numpy.linspace(0, 1, mesh.nx + 1)
-        y1 = numpy.linspace(0, 1, mesh.ny + 1)
-        grid = numpy.meshgrid(x1, y1)
-        plt.contourf(grid[1], grid[0], values.reshape((mesh.nx + 1, mesh.ny + 1)))
+        xv = mesh.vertices[:, 0].reshape((mesh.nx+1, mesh.ny+1))
+        yv = mesh.vertices[:, 1].reshape((mesh.nx+1, mesh.ny+1))
+        plt.contourf(xv, yv, values.reshape((mesh.nx+1, mesh.ny+1)))
         parameters["facecolor"] = "None"
         plt.colorbar()
 

@@ -10,9 +10,9 @@ class Mesh(object):
         """
         Parameters
         ----------
-        nx 
+        nx
             The number of cells in the x direction.
-        ny 
+        ny
             The number of cells in the y direction.
         """
 
@@ -34,7 +34,7 @@ class Mesh(object):
         self.cells = numpy.zeros((self.num_cells, 4), dtype=numpy.int)
         self._topology_computation(nx)
 
-        # Store nx and ny to simplify plotting 
+        # Store nx and ny to simplify plotting
         self.nx = nx
         self.ny = ny
 
@@ -52,23 +52,32 @@ class Mesh(object):
                 (line + 1) * (nx + 1) + rem + 1,
             ]
 
+    def jacobian(self, i):
+        """
+        Return the jacobian matrix for cell i.
+        Note: since the mesh is structured the jacobian matrix
+        is a constant and computed just once and cached.
+        """
+        local_vert = self.vertices[self.cells[i]]
+        dx = local_vert[1, 0] - local_vert[0, 0]
+        dy = local_vert[2, 1] - local_vert[0, 1]
+
+        jacobian = numpy.array([[dx, 0], [0, dy]])
+        return jacobian
+
     def area(self, i: int):
         """
         Retun the area of cell i.
         Note: since the mesh is structured all elements have the same area.
         """
-        local_vert = self.vertices[self.cells[i]]
-        dx = local_vert[1, 0] - local_vert[0, 0]
-        dy = local_vert[2, 1] - local_vert[1, 1]
-        area = dx * dy
-        return area
+        return numpy.linalg.det(self.jacobian(i))
 
 
 class ReferenceQuadrilateral:
     """
     Reference quadrilateral with defined vertices and topology.
 
-    Font: The FEniCS book. Vol. 84. - Page: 
+    Font: The FEniCS book. Vol. 84. - Page:
     """
 
     def __init__(self):

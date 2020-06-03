@@ -64,8 +64,8 @@ def assemble_matrix(V: FunctionSpace, matrix_type: str = "mass", degree: int = 4
         Ae.fill(0)
         local_dofs = dofmap.cell_dofs(i)
         local_coords = mesh.vertices[local_dofs]
-        cell_area = mesh.area(i)
-        Ae[:] = kernel(local_coords, element, cell_area, quad)
+        jac = mesh.jacobian(i)
+        Ae[:] = kernel(local_coords, element, jac, quad)
         data[i*Ae.size: i * Ae.size + Ae.size] = Ae.ravel()
 
     A = sparse.coo_matrix((data, sparsity_pattern(dofmap)),
@@ -73,17 +73,17 @@ def assemble_matrix(V: FunctionSpace, matrix_type: str = "mass", degree: int = 4
     return A
 
 
-def mass_kernel(coord: numpy.ndarray, element: Q1Element, area: float, quad: Quadrature) -> numpy.ndarray:
+def mass_kernel(coord: numpy.ndarray, element: Q1Element, jac: numpy.ndarray, quad: Quadrature) -> numpy.ndarray:
 
     # Sample basis functions on quadrature points
     sample_basis = numpy.apply_along_axis(element.basis, 1, quad.points)
-
+    area = numpy.linalg.det(jac)
     # Ae_{i,j} = \sum_{p} phi(i,p) phi(p,j) weights(p)
     Ae = (sample_basis*quad.weights).T @ sample_basis * area
     return Ae
 
 
-def stiffness_kernel(coord: numpy.ndarray, element: Q1Element, area: float, quad: Quadrature) -> numpy.ndarray:
+def stiffness_kernel(coord: numpy.ndarray, element: Q1Element, jac: numpy.ndarray, quad: Quadrature) -> numpy.ndarray:
     # Samble basis derivatives on quadrature points
     sample_dx = numpy.apply_along_axis(
         element.basis_derivative[0], 1, quad.points)
@@ -92,9 +92,14 @@ def stiffness_kernel(coord: numpy.ndarray, element: Q1Element, area: float, quad
 
     # Add contributions to local matrix componentwise, first dx then dy
     Ae = numpy.zeros((element.num_dofs, element.num_dofs))
-    # Ae_{i,j} = \sum_i \sum_{p} d_{x_i} phi(i,p) d_{x_i} phi(p,j) weights(p)
-    Ae += (sample_dx*quad.weights).T @ sample_dx
-    Ae += (sample_dy*quad.weights).T @ sample_dy
+
+    inv_jac = numpy.linalg.inv(jac)
+    detJ = numpy.linalg.det(jac)
+
+    # Ae_{i,j} = \sum_i \sum_{p} J^{-1} d_{x_i} phi(i,p) J^{-1} d_{x_i} phi(p,j) weights(p) * detJ
+    Ax = ((sample_dx*quad.weights).T @ sample_dx) * inv_jac[0, 0]**2
+    Ay = ((sample_dy*quad.weights).T @ sample_dy) * inv_jac[1, 1]**2
+    Ae = (Ax + Ay) * detJ
     return Ae
 
 
@@ -122,5 +127,5 @@ def apply_bc(A: sparse.spmatrix, b: numpy.ndarray, dofs: numpy.ndarray, value: f
         A.eliminate_zeros()
     else:
         raise TypeError("Matrix must be of csr format.")
-    
+
     b[dofs] = value
