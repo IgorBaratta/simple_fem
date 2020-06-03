@@ -1,5 +1,4 @@
 import numpy
-from scipy import sparse
 from scipy.sparse.linalg import norm
 
 from simple_fem import Mesh, FunctionSpace, Q1Element

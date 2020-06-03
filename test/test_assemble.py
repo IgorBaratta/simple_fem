@@ -1,9 +1,7 @@
 import numpy
-from scipy import sparse
-from scipy.special.orthogonal import ps_roots
+from scipy.sparse.linalg import spsolve
 
-from scipy.sparse.linalg import norm, spsolve
-from simple_fem import Mesh, FunctionSpace, Q1Element, plot
+from simple_fem import Mesh, FunctionSpace, Q1Element
 from simple_fem.assemble import assemble_matrix, assemble_vector, apply_bc
 
 
@@ -20,5 +18,4 @@ def test_bc_all():
     apply_bc(A, b, dofs, value=1)
     x = spsolve(A, b)
 
-    assert numpy.isclose(numpy.sum(x-1), 0)
-
+    assert numpy.isclose(numpy.sum(x - 1), 0)
