@@ -4,7 +4,7 @@ from scipy.sparse.linalg import spsolve
 from simple_fem import Mesh, FunctionSpace, Q1Element, plot
 from simple_fem.assemble import assemble_matrix, assemble_vector, apply_bc
 
-mesh = Mesh(20, 20)
+mesh = Mesh(22, 21)
 element = Q1Element()
 Q = FunctionSpace(mesh, element)
 
