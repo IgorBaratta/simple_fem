@@ -93,8 +93,6 @@ def stiffness_kernel(coord: numpy.ndarray, element: Q1Element, jac: numpy.ndarra
     detJ = numpy.linalg.det(jac)
 
     # Add contributions to local matrix componentwise, first dx then dy
-    Ae = numpy.zeros((element.num_dofs, element.num_dofs))
-
     # Ae_{i,j} = \sum_i \sum_{p} J^{-1} d_{x_i} phi(i,p) J^{-1} d_{x_i} phi(p,j) weights(p) * detJ
     Ax = ((sample_dx*quad.weights).T @ sample_dx) * inv_jac[0, 0]**2
     Ay = ((sample_dy*quad.weights).T @ sample_dy) * inv_jac[1, 1]**2

@@ -67,9 +67,3 @@ def add_poly(mesh, **kwargs):
     verts = mesh.vertices[ordered_cells]
     pc = matplotlib.collections.PolyCollection(verts, **kwargs)
     return pc
-
-
-if __name__ == "__main__":
-    simple_mesh = Mesh(30, 30)
-    cell_values = numpy.arange(simple_mesh.num_cells)
-    plot(simple_mesh, cell_values, False)
